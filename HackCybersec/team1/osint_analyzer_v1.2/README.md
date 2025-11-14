@@ -29,3 +29,11 @@ chmod +x debug_build.sh
 
 # Запускаем отладочную сборку
 ./debug_build.sh
+
+
+# Запуск из под виндовс: 
+
+start.bat 
+
+*** В случае ошибок 
+debug.bat
