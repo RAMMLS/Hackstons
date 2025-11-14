@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>🔍 Ловец Истины - Анализатор источников</title>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="{{ url_for('static', filename='css/style.css') }}"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <!-- Навигация -->
+    <nav class="navbar navbar-dark bg-dark">
+      <div class="container">
+        <span class="navbar-brand mb-0 h1">
+          <i class="fas fa-search me-2"></i>Ловец Истины
+        </span>
+        <span class="text-light">Анализатор OSINT/CSINT источников</span>
+      </div>
+    </nav>
+
+    <!-- Основной контент -->
+    <div class="container mt-4">
+      <div class="row justify-content-center">
+        <div class="col-lg-8">
+          <!-- Панель ввода -->
+          <div class="card shadow-sm">
+            <div class="card-header bg-primary text-white">
+              <h5 class="card-title mb-0">
+                <i class="fas fa-link me-2"></i>Анализ источника данных
+              </h5>
+            </div>
+            <div class="card-body">
+              <form id="analysisForm">
+                <div class="mb-3">
+                  <label for="urlInput" class="form-label"
+                    >Введите URL для анализа:</label
+                  >
+                  <div class="input-group">
+                    <span class="input-group-text">
+                      <i class="fas fa-globe"></i>
+                    </span>
+                    <input
+                      type="url"
+                      class="form-control"
+                      id="urlInput"
+                      placeholder="https://example.com"
+                      required
+                    />
+                  </div>
+                  <div class="form-text">
+                    Введите полный URL включая http:// или https://
+                  </div>
+                </div>
+                <button
+                  type="submit"
+                  class="btn btn-primary w-100"
+                  id="analyzeBtn"
+                >
+                  <i class="fas fa-search me-2"></i>Запустить анализ
+                </button>
+              </form>
+            </div>
+          </div>
+
+          <!-- Индикатор загрузки -->
+          <div id="loadingIndicator" class="card mt-3 d-none">
+            <div class="card-body text-center">
+              <div class="spinner-border text-primary mb-2" role="status"></div>
+              <p>Выполняется анализ источника...</p>
+              <div class="progress">
+                <div
+                  class="progress-bar progress-bar-striped progress-bar-animated"
+                  style="width: 100%"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Результаты анализа -->
+          <div id="resultsSection" class="mt-4" style="display: none">
+            <!-- Здесь будут результаты -->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Примеры для тестирования -->
+    <div class="container mt-4">
+      <div class="row">
+        <div class="col-12">
+          <div class="card">
+            <div class="card-header">
+              <h6>Примеры для тестирования:</h6>
+            </div>
+            <div class="card-body">
+              <div class="btn-group" role="group">
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm test-url"
+                  data-url="https://wikipedia.org"
+                >
+                  Wikipedia (OSINT)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm test-url"
+                  data-url="https://github.com"
+                >
+                  GitHub (OSINT)
+                </button>
+                <button
+                  type="button"
+                  class="btn btn-outline-secondary btn-sm test-url"
+                  data-url="https://example.com"
+                >
+                  Example (OSINT)
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  </body>
+</html>

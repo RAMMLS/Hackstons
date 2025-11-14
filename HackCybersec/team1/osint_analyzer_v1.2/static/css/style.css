@@ -1,0 +1,84 @@
+:root {
+  --osint-color: #28a745;
+  --csint-color: #dc3545;
+  --potential-color: #ffc107;
+}
+
+body {
+  background-color: #f8f9fa;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.card {
+  border: none;
+  border-radius: 10px;
+}
+
+.verdict-badge {
+  font-size: 1.2rem;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: white;
+}
+
+.verdict-osint {
+  background-color: var(--osint-color);
+}
+
+.verdict-csint {
+  background-color: var(--csint-color);
+}
+
+.verdict-potential {
+  background-color: var(--potential-color);
+  color: black;
+}
+
+.check-item {
+  padding: 0.75rem;
+  border-left: 4px solid #dee2e6;
+  margin-bottom: 0.5rem;
+  border-radius: 0 4px 4px 0;
+}
+
+.check-success {
+  border-left-color: var(--osint-color);
+  background-color: rgba(40, 167, 69, 0.1);
+}
+
+.check-warning {
+  border-left-color: var(--potential-color);
+  background-color: rgba(255, 193, 7, 0.1);
+}
+
+.check-danger {
+  border-left-color: var(--csint-color);
+  background-color: rgba(220, 53, 69, 0.1);
+}
+
+.confidence-meter {
+  height: 20px;
+  border-radius: 10px;
+  overflow: hidden;
+  background-color: #e9ecef;
+}
+
+.confidence-fill {
+  height: 100%;
+  transition: width 0.5s ease-in-out;
+}
+
+.fade-in {
+  animation: fadeIn 0.5s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}

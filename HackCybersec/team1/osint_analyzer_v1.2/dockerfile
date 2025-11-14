@@ -1,0 +1,35 @@
+# Dockerfile для OSINT Analyzer с исправлениями
+FROM python:3.11-slim
+
+# Устанавливаем системные зависимости
+RUN apt-get update && apt-get install -y \
+    gcc \
+    python3-dev \
+    curl \
+    && rm -rf /var/lib/apt/lists/*
+
+# Создаем пользователя для безопасности
+RUN useradd --create-home --shell /bin/bash app
+USER app
+WORKDIR /home/app
+
+# Копируем requirements и устанавливаем зависимости
+COPY --chown=app:app requirements.txt .
+RUN pip install --no-cache-dir --user -r requirements.txt
+
+# Копируем исходный код
+COPY --chown=app:app . .
+
+# Создаем директории для логов
+RUN mkdir -p logs
+
+# Экспонируем порт
+EXPOSE 5000
+
+# Переменные окружения
+ENV PYTHONUNBUFFERED=1
+ENV FLASK_ENV=production
+ENV PATH="/home/app/.local/bin:${PATH}"
+
+# Запускаем приложение
+CMD ["python", "app.py"]
