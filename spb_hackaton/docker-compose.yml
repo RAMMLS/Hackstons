@@ -1,17 +1,4 @@
 services:
-  ollama:
-    image: ollama/ollama:latest
-    container_name: ollama-mistral
-    ports:
-      - "11434:11434"
-    volumes:
-      - ollama_data:/root/.ollama
-    environment:
-      - OLLAMA_HOST=0.0.0.0
-    restart: unless-stopped
-    networks:
-      - app-network
-
   backend:
     build: ./backend
     container_name: fastapi-backend
@@ -21,11 +8,9 @@ services:
       - ./backend:/app
     working_dir: /app
     environment:
-      - OLLAMA_HOST=ollama
-      - OLLAMA_PORT=11434
       - DATABASE_URL=sqlite+aiosqlite:///./test.db
-    depends_on:
-      - ollama
+      - MISTRAL_API_KEY=DUuPe2r79BAfDSX9OV6K7FgA1P3g6oeb
+      - MISTRAL_MODEL=mistral-small
     restart: unless-stopped
     networks:
       - app-network
@@ -55,6 +40,3 @@ services:
 networks:
   app-network:
     driver: bridge
-
-volumes:
-  ollama_data:

@@ -5,6 +5,23 @@
       "username": "test",
       "hashed_password": "048104cae45fd6e711f1e666e83d2b979200e057986a3327fe82358c40fd28ea30b2bc658969aba4ca442d9aec5472a5",
       "disabled": false
+    },
+    "Duck": {
+      "id": "50d86416-2b07-4a7b-a2e3-c236e64428a7",
+      "username": "Duck",
+      "hashed_password": "cc232d9872ccf0c4dbf1f15bf09644c44e12e9a0931a7e178ffb62569ec0fa8dd973643a02b882374793173a56e69fbe",
+      "disabled": false,
+      "profile": {
+        "name": "Vlad",
+        "age": 20,
+        "profession": "Frontend",
+        "interests": [
+          "Frontend"
+        ],
+        "education": "School",
+        "location": "Kazan",
+        "bio": ""
+      }
     }
   }
 }

@@ -1,78 +1,209 @@
-/* src/App.css */
-
 * {
-  box-sizing: border-box;
   margin: 0;
   padding: 0;
+  box-sizing: border-box;
 }
 
-body {
-  font-family: 'Segoe UI', Roboto, sans-serif;
-  background-color: #fff;
-  color: #000;
-  line-height: 1.6;
+@keyframes gradientShift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
 }
 
+.App {
+  min-height: 100vh;
+  min-height: -webkit-fill-available;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  width: 100%;
+  overflow-x: hidden;
+  position: relative;
+}
+
+/* Container for Login and Register pages */
 .container {
   width: 100%;
-  padding: 20px 16px;
-  max-width: 480px;
+  max-width: 450px;
+  padding: 20px;
   margin: 0 auto;
 }
 
 .page-title {
   text-align: center;
-  font-size: 24px;
+  font-size: 2.5rem;
   font-weight: 700;
-  margin-bottom: 32px;
-  color: #000;
+  margin-bottom: 40px;
+  background: linear-gradient(135deg, #ffb347, #87ceeb);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-shadow: 0 2px 10px rgba(255, 179, 71, 0.2);
 }
 
+/* Modern Input Field Design */
 .input-field {
   width: 100%;
-  padding: 14px 16px;
-  background-color: #E0E0E0;
-  border: none;
-  border-radius: 12px;
+  padding: 18px 24px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 16px;
   font-size: 16px;
-  margin-bottom: 16px;
+  font-weight: 500;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  outline: none;
   color: #333;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+  margin-bottom: 20px;
+  display: block;
 }
 
-.input-field::placeholder {
-  color: #757575;
-  opacity: 1;
+.input-field:hover {
+  border-color: rgba(255, 179, 71, 0.5);
+  box-shadow: 0 6px 20px rgba(255, 179, 71, 0.15);
+  transform: translateY(-2px);
 }
 
 .input-field:focus {
-  outline: none;
-  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  border-color: #ffb347;
+  background: white;
+  box-shadow: 0 8px 30px rgba(255, 179, 71, 0.25),
+              0 0 0 4px rgba(255, 179, 71, 0.1);
+  transform: translateY(-3px);
 }
 
+.input-field::placeholder {
+  color: #999;
+  font-weight: 400;
+  opacity: 0.7;
+  transition: opacity 0.3s ease;
+}
+
+.input-field:focus::placeholder {
+  opacity: 0.5;
+}
+
+/* Input glow animation */
+@keyframes inputGlow {
+  0% {
+    box-shadow: 0 8px 30px rgba(255, 179, 71, 0.25),
+                0 0 0 4px rgba(255, 179, 71, 0.1);
+  }
+  50% {
+    box-shadow: 0 8px 30px rgba(135, 206, 235, 0.3),
+                0 0 0 4px rgba(135, 206, 235, 0.15);
+  }
+  100% {
+    box-shadow: 0 8px 30px rgba(255, 179, 71, 0.25),
+                0 0 0 4px rgba(255, 179, 71, 0.1);
+  }
+}
+
+.input-field:focus {
+  animation: inputGlow 2s ease-in-out infinite;
+}
+
+/* Submit Button */
 .submit-button {
   width: 100%;
-  padding: 14px;
-  background-color: #000;
+  padding: 18px;
+  background: linear-gradient(135deg, #ffb347, #87ceeb);
   color: white;
   border: none;
-  border-radius: 12px;
+  border-radius: 16px;
   font-size: 18px;
   font-weight: 600;
   cursor: pointer;
-  transition: background-color 0.2s;
-  margin-top: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  margin-top: 10px;
   text-align: center;
+  box-shadow: 0 6px 20px rgba(255, 179, 71, 0.3);
+  position: relative;
+  overflow: hidden;
+}
+
+.submit-button::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+  transition: left 0.5s;
+}
+
+.submit-button:hover::before {
+  left: 100%;
 }
 
 .submit-button:hover,
 .submit-button:focus {
-  background-color: #222;
+  transform: translateY(-3px);
+  box-shadow: 0 10px 30px rgba(255, 179, 71, 0.4);
   outline: none;
 }
 
+.submit-button:active {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 15px rgba(255, 179, 71, 0.3);
+}
+
+/* Error Message */
 .error-message {
+  background: rgba(255, 82, 82, 0.1);
+  border: 2px solid rgba(255, 82, 82, 0.3);
+  border-radius: 12px;
   color: #d32f2f;
   font-size: 14px;
-  margin-bottom: 12px;
+  font-weight: 500;
+  margin-bottom: 20px;
+  padding: 14px 18px;
   text-align: center;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 4px 15px rgba(255, 82, 82, 0.1);
+  animation: shake 0.5s ease-in-out;
+}
+
+@keyframes shake {
+  0%, 100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-10px);
+  }
+  75% {
+    transform: translateX(10px);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 480px) {
+  .container {
+    padding: 15px;
+  }
+
+  .page-title {
+    font-size: 2rem;
+    margin-bottom: 30px;
+  }
+
+  .input-field {
+    padding: 16px 20px;
+    font-size: 15px;
+    margin-bottom: 18px;
+  }
+
+  .submit-button {
+    padding: 16px;
+    font-size: 16px;
+  }
 }

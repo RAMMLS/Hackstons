@@ -6,9 +6,7 @@ import '../App.css';
 export default function Register() {
   const [formData, setFormData] = useState({
     username: '',
-    email: '',
-    password: '',
-    confirmPassword: ''
+    password: ''
   });
   const [error, setError] = useState('');
   const navigate = useNavigate();
@@ -23,26 +21,20 @@ export default function Register() {
     e.preventDefault();
     setError('');
 
-    // Валидация на клиенте
-    if (formData.password !== formData.confirmPassword) {
-      setError('Пароли не совпадают');
-      return;
-    }
-
     try {
-      const response = await fetch('http://localhost:8000/register', {
+      const response = await fetch('http://localhost:8000/api/v1/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: formData.username,
-          email: formData.email,
           password: formData.password
         })
       });
 
       if (response.ok) {
         localStorage.setItem('isAuthenticated', 'true');
-        navigate('/');
+        localStorage.setItem('username', formData.username);
+        navigate('/main');
       } else {
         const err = await response.json();
         setError(err.detail || 'Ошибка регистрации');
@@ -75,16 +67,6 @@ export default function Register() {
           name="password"
           placeholder="Пароль"
           value={formData.password}
-          onChange={handleChange}
-          required
-          className="input-field"
-        />
-
-        <input
-          type="password"
-          name="confirmPassword"
-          placeholder="Повторите пароль"
-          value={formData.confirmPassword}
           onChange={handleChange}
           required
           className="input-field"

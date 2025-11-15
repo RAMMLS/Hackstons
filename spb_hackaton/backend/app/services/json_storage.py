@@ -73,5 +73,24 @@ class JSONStorage:
             del data["users"][username]
             self._write_data(data)
 
+    def get_user_profile(self, username: str) -> Optional[Dict[str, Any]]:
+        """Get user profile data"""
+        user = self.get_user(username)
+        if user:
+            return user.get("profile")
+        return None
+
+    def save_user_profile(self, username: str, profile_data: Dict[str, Any]):
+        """Save user profile data"""
+        data = self._read_data()
+        if "users" not in data:
+            data["users"] = {}
+        if username not in data["users"]:
+            data["users"][username] = {}
+        if "profile" not in data["users"][username]:
+            data["users"][username]["profile"] = {}
+        data["users"][username]["profile"].update(profile_data)
+        self._write_data(data)
+
 # Global storage instance
 storage = JSONStorage()

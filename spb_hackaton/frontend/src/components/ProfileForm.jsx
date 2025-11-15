@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import './ProfileForm.css';
 
-export default function ProfileForm({ onSubmit, isLoading }) {
+export default function ProfileForm({ onSubmit, isLoading, initialData }) {
   const [formData, setFormData] = useState({
     name: '',
     age: '',
@@ -11,6 +11,22 @@ export default function ProfileForm({ onSubmit, isLoading }) {
     location: '',
     bio: ''
   });
+
+  useEffect(() => {
+    if (initialData) {
+      setFormData({
+        name: initialData.name || '',
+        age: initialData.age || '',
+        profession: initialData.profession || '',
+        interests: Array.isArray(initialData.interests) 
+          ? initialData.interests.join(', ') 
+          : initialData.interests || '',
+        education: initialData.education || '',
+        location: initialData.location || '',
+        bio: initialData.bio || ''
+      });
+    }
+  }, [initialData]);
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -31,7 +47,7 @@ export default function ProfileForm({ onSubmit, isLoading }) {
 
     // Validate required fields
     if (!formData.name || !formData.age || !formData.profession || interestsArray.length === 0) {
-      alert('Please fill in all required fields: Name, Age, Profession, and at least one Interest');
+      alert('Пожалуйста, заполните все обязательные поля: Имя, Возраст, Профессия и хотя бы один Интерес');
       return;
     }
 
@@ -46,16 +62,16 @@ export default function ProfileForm({ onSubmit, isLoading }) {
 
   return (
     <div className="profile-form-container">
-      <h2>Tell Us About Yourself</h2>
+      <h2>Расскажите о себе</h2>
       <p className="form-description">
-        Fill in your profile information and our AI will create a personalized article 
-        with topics of interest just for you!
+        Заполните информацию о вашем профиле, и наш ИИ создаст персонализированную статью 
+        с интересными темами специально для вас!
       </p>
       
       <form onSubmit={handleSubmit} className="profile-form">
         <div className="form-group">
           <label htmlFor="name">
-            Name <span className="required">*</span>
+            Имя <span className="required">*</span>
           </label>
           <input
             type="text"
@@ -64,14 +80,14 @@ export default function ProfileForm({ onSubmit, isLoading }) {
             value={formData.name}
             onChange={handleChange}
             required
-            placeholder="John Doe"
+            placeholder="Иван Иванов"
           />
         </div>
 
         <div className="form-row">
           <div className="form-group">
             <label htmlFor="age">
-              Age <span className="required">*</span>
+              Возраст <span className="required">*</span>
             </label>
             <input
               type="number"
@@ -88,7 +104,7 @@ export default function ProfileForm({ onSubmit, isLoading }) {
 
           <div className="form-group">
             <label htmlFor="profession">
-              Profession <span className="required">*</span>
+              Профессия <span className="required">*</span>
             </label>
             <input
               type="text"
@@ -97,15 +113,15 @@ export default function ProfileForm({ onSubmit, isLoading }) {
               value={formData.profession}
               onChange={handleChange}
               required
-              placeholder="Software Engineer"
+              placeholder="Программист"
             />
           </div>
         </div>
 
         <div className="form-group">
           <label htmlFor="interests">
-            Interests <span className="required">*</span>
-            <span className="hint">(comma-separated)</span>
+            Интересы <span className="required">*</span>
+            <span className="hint">(через запятую)</span>
           </label>
           <input
             type="text"
@@ -114,45 +130,45 @@ export default function ProfileForm({ onSubmit, isLoading }) {
             value={formData.interests}
             onChange={handleChange}
             required
-            placeholder="Technology, Reading, Travel, Music"
+            placeholder="Технологии, Чтение, Путешествия, Музыка"
           />
         </div>
 
         <div className="form-row">
           <div className="form-group">
-            <label htmlFor="education">Education</label>
+            <label htmlFor="education">Образование</label>
             <input
               type="text"
               id="education"
               name="education"
               value={formData.education}
               onChange={handleChange}
-              placeholder="Bachelor's in Computer Science"
+              placeholder="Высшее техническое образование"
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="location">Location</label>
+            <label htmlFor="location">Местоположение</label>
             <input
               type="text"
               id="location"
               name="location"
               value={formData.location}
               onChange={handleChange}
-              placeholder="Moscow, Russia"
+              placeholder="Москва, Россия"
             />
           </div>
         </div>
 
         <div className="form-group">
-          <label htmlFor="bio">Bio / Additional Information</label>
+          <label htmlFor="bio">О себе / Дополнительная информация</label>
           <textarea
             id="bio"
             name="bio"
             value={formData.bio}
             onChange={handleChange}
             rows="4"
-            placeholder="Tell us more about yourself, your goals, or anything else you'd like to share..."
+            placeholder="Расскажите больше о себе, своих целях или чем-то еще, чем вы хотели бы поделиться..."
           />
         </div>
 
@@ -161,7 +177,7 @@ export default function ProfileForm({ onSubmit, isLoading }) {
           className="submit-button"
           disabled={isLoading}
         >
-          {isLoading ? 'Analyzing...' : 'Generate Article'}
+          {isLoading ? 'Анализирую...' : 'Сгенерировать статью'}
         </button>
       </form>
     </div>

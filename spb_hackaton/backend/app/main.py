@@ -37,7 +37,7 @@ except Exception as e:
 
 class ChatRequest(BaseModel):
     message: str
-    model: str = "mistral"
+    model: str = "mistral-small"
 
 class ChatResponse(BaseModel):
     response: str
@@ -45,14 +45,9 @@ class ChatResponse(BaseModel):
 
 class HealthResponse(BaseModel):
     status: str
-    ollama: str
+    mistral: str
     database: str
     error: str = None
-
-# Конфигурация Ollama
-OLLAMA_HOST = os.getenv("OLLAMA_HOST", "ollama")
-OLLAMA_PORT = os.getenv("OLLAMA_PORT", "11434")
-OLLAMA_URL = f"http://{OLLAMA_HOST}:{OLLAMA_PORT}"
 
 @app.on_event("startup")
 async def startup_event():
@@ -71,18 +66,37 @@ async def root():
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
-    ollama_status = "disconnected"
+    mistral_status = "disconnected"
     db_status = "unknown"
     error_msg = None
     
-    # Проверяем Ollama
+    # Проверяем Mistral AI API (проверяем наличие API ключа)
     try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(f"{OLLAMA_URL}/api/tags")
-            if response.status_code == 200:
-                ollama_status = "connected"
+        if settings.MISTRAL_API_KEY:
+            # Делаем тестовый запрос для проверки доступности API
+            async with httpx.AsyncClient(timeout=10.0) as client:
+                response = await client.post(
+                    settings.MISTRAL_API_BASE,
+                    headers={
+                        "Authorization": f"Bearer {settings.MISTRAL_API_KEY}",
+                        "Content-Type": "application/json"
+                    },
+                    json={
+                        "model": settings.MISTRAL_MODEL,
+                        "messages": [
+                            {"role": "user", "content": "test"}
+                        ],
+                        "max_tokens": 10
+                    }
+                )
+                if response.status_code in [200, 400]:  # 400 может быть из-за короткого запроса, но API доступен
+                    mistral_status = "connected"
+                else:
+                    error_msg = f"Mistral API returned status {response.status_code}"
+        else:
+            error_msg = "MISTRAL_API_KEY not configured"
     except Exception as e:
-        error_msg = f"Ollama: {str(e)}"
+        error_msg = f"Mistral: {str(e)}"
     
     # Проверяем базу данных (упрощенно)
     try:
@@ -91,11 +105,11 @@ async def health_check():
         db_status = "disconnected"
         error_msg = f"Database: {str(e)}" if not error_msg else f"{error_msg}, Database: {str(e)}"
     
-    status = "healthy" if ollama_status == "connected" and db_status == "connected" else "unhealthy"
+    status = "healthy" if mistral_status == "connected" and db_status == "connected" else "unhealthy"
     
     return HealthResponse(
         status=status,
-        ollama=ollama_status,
+        mistral=mistral_status,
         database=db_status,
         error=error_msg
     )
@@ -103,57 +117,73 @@ async def health_check():
 @app.post("/chat", response_model=ChatResponse)
 async def chat_with_model(request: ChatRequest):
     try:
-        # Формируем запрос к Ollama API
-        ollama_data = {
-            "model": request.model,
-            "prompt": request.message,
-            "stream": False,
-            "options": {
-                "temperature": 0.7,
-                "top_p": 0.9
-            }
+        if not settings.MISTRAL_API_KEY:
+            raise HTTPException(
+                status_code=500,
+                detail="Ключ API Mistral не настроен. Пожалуйста, установите переменную окружения MISTRAL_API_KEY."
+            )
+        
+        # Формируем запрос к Mistral AI API
+        mistral_data = {
+            "model": request.model or settings.MISTRAL_MODEL,
+            "messages": [
+                {"role": "user", "content": request.message}
+            ],
+            "temperature": 0.7,
+            "max_tokens": 2000
         }
         
         async with httpx.AsyncClient(timeout=60.0) as client:
             response = await client.post(
-                f"{OLLAMA_URL}/api/generate",
-                json=ollama_data
+                settings.MISTRAL_API_BASE,
+                headers={
+                    "Authorization": f"Bearer {settings.MISTRAL_API_KEY}",
+                    "Content-Type": "application/json"
+                },
+                json=mistral_data
             )
             
             if response.status_code == 200:
                 result = response.json()
+                # Mistral API возвращает ответ в формате choices[0].message.content
+                choices = result.get("choices", [])
+                if choices and len(choices) > 0:
+                    response_text = choices[0].get("message", {}).get("content", "Ответ не получен")
+                else:
+                    response_text = "Ответ не получен"
+                
                 return ChatResponse(
-                    response=result.get("response", "No response received"),
-                    model=request.model
+                    response=response_text,
+                    model=request.model or settings.MISTRAL_MODEL
                 )
             else:
+                error_detail = response.text[:500] if hasattr(response, 'text') else "Неизвестная ошибка"
                 raise HTTPException(
                     status_code=response.status_code,
-                    detail=f"Ollama API error: {response.text}"
+                    detail=f"Mistral API error: {error_detail}"
                 )
                 
     except httpx.TimeoutException:
-        raise HTTPException(status_code=504, detail="Request timeout - Ollama is not responding")
+        raise HTTPException(status_code=504, detail="Превышено время ожидания - Mistral API не отвечает")
     except httpx.ConnectError:
-        raise HTTPException(status_code=503, detail="Cannot connect to Ollama service")
+        raise HTTPException(status_code=503, detail="Не удалось подключиться к сервису Mistral API")
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Internal server error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Внутренняя ошибка сервера: {str(e)}")
 
 @app.get("/models")
 async def get_models():
-    try:
-        async with httpx.AsyncClient(timeout=10.0) as client:
-            response = await client.get(f"{OLLAMA_URL}/api/tags")
-            if response.status_code == 200:
-                models_data = response.json()
-                return models_data
-            else:
-                raise HTTPException(
-                    status_code=response.status_code,
-                    detail="Failed to fetch models from Ollama"
-                )
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    """Return available Mistral AI models"""
+    return {
+        "models": [
+            {"name": "mistral-tiny", "description": "Fast and efficient Mistral model (7B parameters)"},
+            {"name": "mistral-small", "description": "Balanced Mistral model with good performance (8x7B parameters)"},
+            {"name": "mistral-medium", "description": "Enhanced Mistral model (24B parameters)"},
+            {"name": "mistral-large", "description": "Most powerful Mistral model (123B parameters)"}
+        ],
+        "default": settings.MISTRAL_MODEL
+    }
 
 if __name__ == "__main__":
     import uvicorn

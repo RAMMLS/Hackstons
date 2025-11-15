@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import ReactMarkdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import './ArticleDisplay.css';
 
 export default function ArticleDisplay({ article, topics, onReset }) {
@@ -10,88 +12,52 @@ export default function ArticleDisplay({ article, topics, onReset }) {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  // Convert markdown links to clickable links
-  const formatArticle = (text) => {
-    // Replace markdown links [text](url) with HTML links
-    const linkRegex = /\[([^\]]+)\]\(([^\)]+)\)/g;
-    const parts = [];
-    let lastIndex = 0;
-    let match;
-
-    while ((match = linkRegex.exec(text)) !== null) {
-      // Add text before the link
-      if (match.index > lastIndex) {
-        parts.push({
-          type: 'text',
-          content: text.substring(lastIndex, match.index)
-        });
-      }
-      // Add the link
-      parts.push({
-        type: 'link',
-        text: match[1],
-        url: match[2]
-      });
-      lastIndex = match.index + match[0].length;
-    }
-
-    // Add remaining text
-    if (lastIndex < text.length) {
-      parts.push({
-        type: 'text',
-        content: text.substring(lastIndex)
-      });
-    }
-
-    return parts.length > 0 ? parts : [{ type: 'text', content: text }];
-  };
-
-  const formattedContent = formatArticle(article);
-
   return (
     <div className="article-display-container">
       <div className="article-header">
-        <h2>Your Personalized Article</h2>
+        <h2>Ваша персонализированная статья</h2>
         <div className="article-actions">
           <button 
             onClick={handleCopy} 
             className="copy-button"
-            title="Copy article"
+            title="Копировать статью"
           >
-            {copied ? '✓ Copied!' : '📋 Copy'}
+            {copied ? '✓ Скопировано!' : '📋 Копировать'}
           </button>
           <button 
             onClick={onReset} 
             className="reset-button"
-            title="Create new article"
+            title="Создать новую статью"
           >
-            ✨ New Article
+            ✨ Новая статья
           </button>
         </div>
       </div>
 
       <div className="article-content">
-        {formattedContent.map((part, index) => {
-          if (part.type === 'link') {
-            return (
+        <ReactMarkdown
+          remarkPlugins={[remarkGfm]}
+          components={{
+            p: ({ node, ...props }) => (
+              <p className="article-paragraph" {...props} />
+            ),
+            a: ({ node, ...props }) => (
               <a
-                key={index}
-                href={part.url}
+                className="article-link"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="article-link"
-              >
-                {part.text}
-              </a>
-            );
-          }
-          return <span key={index}>{part.content}</span>;
-        })}
+                {...props}
+              />
+            ),
+          }}
+        >
+          {article}
+        </ReactMarkdown>
       </div>
 
       {topics && topics.length > 0 && (
         <div className="topics-section">
-          <h3>Topics of Interest</h3>
+          <h3>Интересные темы</h3>
           <div className="topics-grid">
             {topics.map((topic, index) => (
               <a

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, status, Depends, Form
+from fastapi import APIRouter, HTTPException, status, Depends
 from datetime import timedelta
 from app.models.user import UserCreate, Token, UserResponse
 from app.services.user_service import UserService
@@ -25,12 +25,9 @@ async def register(user_data: UserCreate):
         )
 
 @router.post("/login", response_model=Token)
-async def login(
-    username: str = Form(...),
-    password: str = Form(...)
-):
+async def login(user_data: UserCreate):
     """Login user and get access token"""
-    user = UserService.authenticate_user(username, password)
+    user = UserService.authenticate_user(user_data.username, user_data.password)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
